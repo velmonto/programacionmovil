@@ -1,36 +1,51 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 
 export default function App() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () =>{
+      try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const result = await response.json();
+        setData(result); // Guardamos los datos obtenidos
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false); // Deja de cargar
+      }
+    };
+    fetchData();
+  }, []);
+
+  const renderItem = ({item}) => (
+  <View style={styles.container}>
+    <View style={styles.itemContainer}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.body}>{item.body}</Text>
+    </View>
+  </View>);
+
+  if(loading){
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <View style={styles.leftColumn}>
-          <View style={styles.largeBox} />
-        </View>
-        <View style={styles.rightColumn}>
-          <View style={styles.smallBoxesContainer}>
-            <View style={styles.smallBox} />
-            <View style={styles.smallBox} />
-            <View style={styles.smallBox} />
-            <View style={styles.smallBox} />
-          </View>
-          <View style={styles.mediumBox} />
-        </View>
-      </View>
-      <View style={styles.bottomContainer}>
-        <View style={styles.bottomWideBox}>
-          <View style={styles.wideBox} />
-        </View>
-        <View style={styles.bottomBoxContainer}>
-          <View style={styles.bottomBox} />
-          <View style={styles.bottomBox} />
-          <View style={styles.bottomBox} />
-        </View>
-      </View>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+      />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -41,81 +56,29 @@ const styles = StyleSheet.create({
     margin: 5,
     borderRadius: 7
   },
-  topContainer:{
-    flex: 0.7,
-    flexDirection: 'row',
-    padding: 10
+  itemContainer: {
+    backgroundColor: '#f9f9f9',
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  bottomContainer:{
-    flex: 0.3,
-    padding:10,
-    flexDirection: 'column'
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
-  leftColumn: {
-    flex: 2,
-    padding: 10
+  body: {
+    fontSize: 14,
+    color: '#666',
   },
-  rightColumn:{
-    flex: 2,
-    padding: 10
-  },
-  smallBoxesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between'
-  },
-  smallBox: {
-    width: 48,
+  loadingContainer: {
     flex: 1,
-    padding: 30,
-    borderWidth: 1,
-    borderColor: '#000',
-    backgroundColor: '#ddd',
-    borderRadius: 7,
-    marginTop: 10,
-    marginLeft: 5
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  largeBox: {
-    flex: 0.7,
-    backgroundColor: '#ddd',
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 7
-  },
-  mediumBox: {
-    flex: 0.8,
-    backgroundColor: '#ddd',
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 10,
-    borderRadius: 7,
-    marginTop: 100
-  },
-  wideBox: {
-    flex: 1,
-    backgroundColor: '#ddd',
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 10,
-    borderRadius: 7
-  },
-  bottomBox: {
-    flex: 1,
-    padding: 30,
-    borderWidth: 1,
-    borderColor: '#000',
-    backgroundColor: '#ddd',
-    borderRadius: 7,
-    marginLeft: 5
-  },
-  bottomWideBox:{
-    flex: 2,
-    padding: 10
-  },
-  bottomBoxContainer:{
-    flex: 2,
-    padding: 10,
-    justifyContent: 'space-around',
-    flexDirection: 'row'
-  }
 });
