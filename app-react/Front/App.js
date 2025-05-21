@@ -19,8 +19,8 @@ export default function App() {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Registro" component={RegistroScreen} />
-        <Stack.Screen name="Categor�as" component={CategoriasScreen} />
-        <Stack.Screen name="An�lisis" component={AnalisisScreen} />
+        <Stack.Screen name="Categorías" component={CategoriasScreen} />
+        <Stack.Screen name="Análisis" component={AnalisisScreen} />
       </Stack.Navigator>
     </NavigationContainer>
 
