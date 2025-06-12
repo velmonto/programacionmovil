@@ -3,19 +3,19 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } f
 import { login } from '../services/authService';
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [correo, setEmail] = useState('');
+  const [contraseña, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
+    if (!correo.trim() || !contraseña.trim()) {
       Alert.alert('Error', 'Todos los campos son obligatorios');
       return;
     }
 
     setLoading(true);
     try {
-      await login(email, password);
+      await login(correo, contraseña);
       navigation.replace('Dashboard');
     } catch (error) {
       Alert.alert('Error', error.message || 'Credenciales incorrectas');
@@ -31,7 +31,7 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
-        value={email}
+        value={correo}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
@@ -40,7 +40,7 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        value={password}
+        value={contraseña}
         onChangeText={setPassword}
         secureTextEntry
       />

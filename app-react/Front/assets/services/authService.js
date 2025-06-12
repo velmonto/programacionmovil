@@ -1,18 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://localhost:3300/api/usuarios/login'; // Ajusta la URL según tu backend
+const API_URL = 'http://localhost:3300/api/usuarios'; 
 
-/**
- * Realiza login y almacena el token JWT recibido.
- * @param {string} email
- * @param {string} password
- * @returns {Promise<object>} Datos del usuario autenticado (ej: token, usuario, etc)
- */
-export const login = async (email, password) => {
-  const res = await fetch(API_URL, {
+
+export const login = async (correo, contraseña) => {
+  const res = await fetch(`${API_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ correo, contraseña }),
   });
 
   const data = await res.json();
@@ -27,44 +22,22 @@ export const login = async (email, password) => {
   return data;
 };
 
-/**
- * Obtiene el token JWT almacenado.
- * @returns {Promise<string|null>}
- */
-export const getToken = async () => {
-  return await AsyncStorage.getItem('token');
-};
-
-/**
- * Elimina el token JWT del almacenamiento (logout).
- */
 export const logout = async () => {
   await AsyncStorage.removeItem('token');
 };
 
-/**
- * Realiza una petición autenticada con el token JWT.
- * @param {string} url
- * @param {object} options
- * @returns {Promise<any>}
- */
-export const authFetch = async (url, options = {}) => {
-  const token = await getToken();
-  const headers = {
-    ...(options.headers || {}),
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
-
-  const res = await fetch(url, { ...options, headers });
-  if (res.status === 401) {
-    // Token inválido o expirado, puedes manejar logout automático aquí
-    await logout();
-    throw new Error('Sesión expirada. Por favor, inicia sesión de nuevo.');
-  }
+export const register = async (nombre, correo, contraseña) => {
+  const res = await fetch(`${API_URL}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, correo, contraseña }),
+  });
+    console.log('Antes de enviar mensaje al back');
+  const data = await res.json();
+console.log('despues de enviar mensaje al back');
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.mensaje || 'Error en la solicitud');
+    throw new Error(data.mensaje || 'Registro fallido');
   }
-  return res.json();
+
+  return data;
 };

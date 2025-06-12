@@ -1,55 +1,72 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, Picker } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { registrarMovimiento } from '../services/movimientosService';
+import { getCategorias } from '../services/categoriasService';
 
 export default function RegistroScreen({ navigation }) {
   const [valor, setValor] = useState('');
   const [tipo, setTipo] = useState('ingreso');
-  const [categoria, setCategoria] = useState('Alimentación');
+  const [categorias, setCategorias] = useState([]);
+  const [categoriaId, setCategoriaId] = useState('');
 
-  // Simulación de categorías preexistentes
-  const categoriasDisponibles = ['Alimentación', 'Transporte', 'Salud', 'Educación', 'Otros'];
+  useEffect(() => {
+    const cargar = async () => {
+      try {
+        const data = await getCategorias(); // debes tener token en el servicio
+        setCategorias(data);
+        if (data.length > 0) setCategoriaId(data[0].id.toString());
+      } catch (error) {
+        Alert.alert('Error', 'No se pudieron cargar las categorías');
+      }
+    };
+    cargar();
+  }, []);
 
-  const handleRegistrar = () => {
+  const handleRegistrar = async () => {
     if (!valor || isNaN(valor)) {
       Alert.alert('Error', 'Introduce un valor numérico válido');
       return;
     }
 
-    const nuevoMovimiento = {
-      tipo,
-      valor: parseFloat(valor),
-      categoria,
-      fecha: new Date().toISOString(),
-    };
+    try {
+      const movimiento = {
+        tipo,
+        valor: parseFloat(valor),
+        categoria_id: parseInt(categoriaId),
+        fecha: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      };
 
-    console.log('Movimiento registrado:', nuevoMovimiento);
-
-    Alert.alert('Éxito', `Movimiento ${tipo} registrado`);
-    navigation.goBack(); // volver al Dashboard
+      await registrarMovimiento(movimiento);
+      Alert.alert('Éxito', 'Movimiento guardado');
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Registrar {tipo}</Text>
+      <Text style={styles.title}>Registrar Movimiento</Text>
 
       <TextInput
-        style={styles.input}
         placeholder="Valor"
         keyboardType="numeric"
         value={valor}
         onChangeText={setValor}
+        style={styles.input}
       />
 
       <Text style={styles.label}>Tipo:</Text>
-      <Picker selectedValue={tipo} onValueChange={(itemValue) => setTipo(itemValue)} style={styles.picker}>
+      <Picker selectedValue={tipo} onValueChange={(v) => setTipo(v)} style={styles.picker}>
         <Picker.Item label="Ingreso" value="ingreso" />
         <Picker.Item label="Egreso" value="egreso" />
       </Picker>
 
       <Text style={styles.label}>Categoría:</Text>
-      <Picker selectedValue={categoria} onValueChange={(itemValue) => setCategoria(itemValue)} style={styles.picker}>
-        {categoriasDisponibles.map((cat) => (
-          <Picker.Item key={cat} label={cat} value={cat} />
+      <Picker selectedValue={categoriaId} onValueChange={(v) => setCategoriaId(v)} style={styles.picker}>
+        {categorias.map(cat => (
+          <Picker.Item key={cat.id} label={cat.nombre} value={cat.id.toString()} />
         ))}
       </Picker>
 

@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { register } from '../services/authService';
 
 export default function RegisterScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contraseña, setContraseña] = useState('');
+  const [nombre, setNombre] = useState('');
 
-  const handleRegister = () => {
-    // Aquí se llamaría a tu backend para registrar el usuario
-    if (!email || !password || !name) {
+  const handleRegister = async () => {
+    if (!nombre || !correo || !contraseña) {
+      console.log('Campos vacíos');
       Alert.alert('Error', 'Todos los campos son obligatorios');
       return;
     }
-
-    Alert.alert('Éxito', 'Usuario registrado');
-    navigation.navigate('Login');
+    try{
+      console.log('Enviando solicitud...');
+      await register(nombre, correo, contraseña);
+      Alert.alert('Éxito', 'Usuario registrado correctamente');
+      navigation.navigate('Login');
+    }catch (error){
+      console.log('Error al registrar:', error.message);
+      Alert.alert('Error', error.message);
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registro de Usuario</Text>
-      <TextInput style={styles.input} placeholder="Nombre" value={name} onChangeText={setName} />
-      <TextInput style={styles.input} placeholder="Correo electrónico" value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+      <TextInput style={styles.input} placeholder="Nombre" value={nombre} onChangeText={setNombre} />
+      <TextInput style={styles.input} placeholder="Correo electrónico" value={correo} onChangeText={setCorreo} keyboardType="email-address" />
+      <TextInput style={styles.input} placeholder="Contraseña" value={contraseña} onChangeText={setContraseña} secureTextEntry />
       <Button title="Registrarse" onPress={handleRegister} />
     </View>
   );

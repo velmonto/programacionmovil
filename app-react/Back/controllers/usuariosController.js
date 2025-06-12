@@ -10,16 +10,14 @@ const register = async (req, res) => {
     return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
   }
 
-  // Verificar si el correo ya existe
+  console.log('Inicia consulta de usuario antes de registrar');
   db.query('SELECT * FROM usuarios WHERE correo = ?', [correo], async (err, resultados) => {
     if (resultados.length > 0) {
       return res.status(400).json({ mensaje: 'El correo ya está registrado' });
     }
 
-    // Encriptar la contraseña
     const contraseñaHasheada = await bcrypt.hash(contraseña, 10);
 
-    // Insertar usuario
     db.query(
       'INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)',
       [nombre, correo, contraseñaHasheada],
@@ -46,7 +44,6 @@ const login = (req, res) => {
       return res.status(401).json({ mensaje: 'Correo o contraseña inválidos' });
     }
 
-    // Crear token (opcional, útil para apps reales)
     const token = jwt.sign({ id: usuario.id, correo: usuario.correo }, 'CLAVESECRETA', {
       expiresIn: '1h',
     });
