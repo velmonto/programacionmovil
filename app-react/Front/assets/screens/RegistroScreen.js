@@ -10,15 +10,16 @@ export default function RegistroScreen({ navigation }) {
   const [tipo, setTipo] = useState('ingreso');
   const [categorias, setCategorias] = useState([]);
   const [categoriaId, setCategoriaId] = useState('');
+  const [usuarioId, setUsuarioId] = useState(null);
 
  useEffect(() => {
   const cargarCategorias = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const usuarioId = payload.id;
-
-      const data = await getCategorias(usuarioId);
+      setUsuarioId(payload.id);
+      console.log("Se inicia carrga de categorias",usuarioId);
+      const data = await getCategorias(payload.id);
       setCategorias(data);
       if (data.length > 0) setCategoriaId(data[0].id.toString());
     } catch (error) {
@@ -35,13 +36,13 @@ export default function RegistroScreen({ navigation }) {
       Alert.alert('Error', 'Completa todos los campos');
       return;
     }
-    console.log('se capturan los datos');
+    console.log('se capturan los datos',tipo, valor, categoriaId, usuarioId);
     try {
       const movimiento = {
         tipo,
         valor: parseFloat(valor),
         categoria_id: parseInt(categoriaId),
-        usuario_id: payload.id,
+        usuario_id: usuarioId,
         fecha: new Date().toISOString().slice(0, 19).replace('T', ' ')
       };
       console.log(movimiento);

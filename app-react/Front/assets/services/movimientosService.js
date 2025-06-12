@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://localhost:3300/api/movimientos'; // cambia si usas IP local
+const BASE_URL = 'http://localhost:3300/api/movimientos'; 
 
 export const registrarMovimiento = async (movimiento) => {
   const token = await AsyncStorage.getItem('token');

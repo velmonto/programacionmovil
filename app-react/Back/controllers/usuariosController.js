@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const register = async (req, res) => {
   const { nombre, correo, contraseña } = req.body;
 
-  // Validar datos
   if (!nombre || !correo || !contraseña) {
     return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
   }
@@ -53,4 +52,14 @@ const login = (req, res) => {
   });
 };
 
-module.exports = { register, login };
+const obtenerSaldo = (req, res) => {
+  const { id } = req.params;
+  db.query('SELECT saldo FROM usuarios WHERE id = ?', [id], (err, resultados) => {
+    if (err || resultados.length === 0) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
+    res.json({ saldo: resultados[0].saldo });
+  });
+};
+
+module.exports = { register, login, obtenerSaldo };
