@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { registrarMovimiento } from '../services/movimientosService';
-import { getCategorias } from '../services/categoriasService';
+import { getCategorias, obtenerCategorias } from '../services/categoriasService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RegistroScreen({ navigation }) {
   const [valor, setValor] = useState('');
@@ -10,33 +11,41 @@ export default function RegistroScreen({ navigation }) {
   const [categorias, setCategorias] = useState([]);
   const [categoriaId, setCategoriaId] = useState('');
 
-  useEffect(() => {
-    const cargar = async () => {
-      try {
-        const data = await getCategorias(); // debes tener token en el servicio
-        setCategorias(data);
-        if (data.length > 0) setCategoriaId(data[0].id.toString());
-      } catch (error) {
-        Alert.alert('Error', 'No se pudieron cargar las categorías');
-      }
-    };
-    cargar();
-  }, []);
+ useEffect(() => {
+  const cargarCategorias = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const usuarioId = payload.id;
+
+      const data = await getCategorias(usuarioId);
+      setCategorias(data);
+      if (data.length > 0) setCategoriaId(data[0].id.toString());
+    } catch (error) {
+      console.error('Error al cargar categorías:', error.message);
+    }
+  };
+
+  cargarCategorias();
+}, []);
 
   const handleRegistrar = async () => {
-    if (!valor || isNaN(valor)) {
-      Alert.alert('Error', 'Introduce un valor numérico válido');
+    console.log('Inicia registro de movimientos');
+    if (!valor || isNaN(valor) || !categoriaId) {
+      Alert.alert('Error', 'Completa todos los campos');
       return;
     }
-
+    console.log('se capturan los datos');
     try {
       const movimiento = {
         tipo,
         valor: parseFloat(valor),
         categoria_id: parseInt(categoriaId),
+        usuario_id: payload.id,
         fecha: new Date().toISOString().slice(0, 19).replace('T', ' ')
       };
-
+      console.log(movimiento);
+      console.log('Antes de enviar informacion al back');
       await registrarMovimiento(movimiento);
       Alert.alert('Éxito', 'Movimiento guardado');
       navigation.goBack();
@@ -64,8 +73,8 @@ export default function RegistroScreen({ navigation }) {
       </Picker>
 
       <Text style={styles.label}>Categoría:</Text>
-      <Picker selectedValue={categoriaId} onValueChange={(v) => setCategoriaId(v)} style={styles.picker}>
-        {categorias.map(cat => (
+      <Picker selectedValue={categoriaId} onValueChange={(value) => setCategoriaId(value)} style={styles.picker}>
+        {categorias.map((cat) => (
           <Picker.Item key={cat.id} label={cat.nombre} value={cat.id.toString()} />
         ))}
       </Picker>

@@ -1,12 +1,13 @@
 const db = require('../db/db');
 
 const registrarMovimiento = (req, res) => {
+  console.log('Se recibe informacion del front')
   const { tipo, valor, categoria_id, usuario_id, fecha } = req.body;
 
   if (!tipo || !valor || !categoria_id || !usuario_id || !fecha) {
     return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
   }
-
+  console.log('Antes de insertar')
   const query = `
     INSERT INTO movimientos (tipo, valor, categoria_id, usuario_id, fecha)
     VALUES (?, ?, ?, ?, ?)

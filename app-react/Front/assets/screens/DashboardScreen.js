@@ -1,54 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Alert,
+  BackHandler,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DashboardScreen({ navigation }) {
-  const [ingresos, setIngresos] = useState(0);
-  const [egresos, setEgresos] = useState(0);
-
+  // 🔐 Verifica si el token existe al entrar
   useEffect(() => {
-    // Simulación de datos (más adelante se conectará al backend)
-    const datosSimulados = [
-      { tipo: 'ingreso', valor: 2000 },
-      { tipo: 'egreso', valor: 500 },
-      { tipo: 'ingreso', valor: 1000 },
-      { tipo: 'egreso', valor: 300 },
-    ];
-
-    const totalIngresos = datosSimulados
-      .filter(item => item.tipo === 'ingreso')
-      .reduce((sum, item) => sum + item.valor, 0);
-
-    const totalEgresos = datosSimulados
-      .filter(item => item.tipo === 'egreso')
-      .reduce((sum, item) => sum + item.valor, 0);
-
-    setIngresos(totalIngresos);
-    setEgresos(totalEgresos);
+    const verificarSesion = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        navigation.replace('Login');
+      }
+    };
+    verificarSesion();
   }, []);
 
-  const saldoDisponible = ingresos - egresos;
+  // 🚪 Función de logout
+  const handleLogout = async () => {
+    Alert.alert('Cerrar sesión', '¿Estás seguro que deseas salir?', [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {
+        text: 'Cerrar sesión',
+        onPress: async () => {
+          try {
+            await AsyncStorage.removeItem('token');
+            navigation.replace('Login');
+          } catch (error) {
+            Alert.alert('Error', 'No se pudo cerrar sesión');
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Resumen financiero</Text>
-      <Text style={styles.saldo}>Saldo disponible: ${saldoDisponible}</Text>
-      <Text style={styles.ingresos}>Ingresos totales: ${ingresos}</Text>
-      <Text style={styles.egresos}>Egresos totales: ${egresos}</Text>
+      <Text style={styles.title}>Bienvenido al Dashboard</Text>
+      <Button
+        title="➕ Registrar movimiento"
+        onPress={() => navigation.navigate('Registro')}
+      />
+      <View style={{ marginVertical: 10 }} />
+      <Button
+        title="🧾 Ver historial de movimientos"
+        onPress={() => navigation.navigate('Movimientos')}
+      />
 
-      <View style={styles.buttonsContainer}>
-        <Button title="Registrar Movimiento" onPress={() => navigation.navigate('Registro')} />
-        <Button title="Categorías" onPress={() => navigation.navigate('Categorías')} />
-        <Button title="Análisis" onPress={() => navigation.navigate('Análisis')} />
-      </View>
+      <View style={{ marginVertical: 10 }} />
+
+      <Button
+        title="📂 Gestionar categorías"
+        onPress={() => navigation.navigate('Categorías')}
+      />
+
+      <View style={{ marginVertical: 20 }} />
+
+      <Button
+        title="🔓 Cerrar sesión"
+        color="red"
+        onPress={handleLogout}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  header: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
-  saldo: { fontSize: 20, marginVertical: 10, color: '#000' },
-  ingresos: { fontSize: 18, color: 'green', marginBottom: 5 },
-  egresos: { fontSize: 18, color: 'red', marginBottom: 20 },
-  buttonsContainer: { gap: 10 },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30 },
 });

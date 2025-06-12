@@ -36,15 +36,16 @@ const login = (req, res) => {
     if (err || resultados.length === 0) {
       return res.status(401).json({ mensaje: 'Correo o contraseña inválidos' });
     }
-
+    console.log('Intentando login con:', correo);
+    console.log('Resultados SQL:', resultados);
     const usuario = resultados[0];
     const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña);
-
+    console.log(usuario);
     if (!contraseñaValida) {
       return res.status(401).json({ mensaje: 'Correo o contraseña inválidos' });
     }
 
-    const token = jwt.sign({ id: usuario.id, correo: usuario.correo }, 'CLAVESECRETA', {
+    const token = jwt.sign({ id: usuario.id, correo: usuario.correo }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 
