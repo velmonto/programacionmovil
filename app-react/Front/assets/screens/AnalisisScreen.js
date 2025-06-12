@@ -9,7 +9,6 @@ export default function AnalisisScreen() {
   });
 
   useEffect(() => {
-    // Datos simulados
     const movimientos = [
       { tipo: 'ingreso', valor: 2000, categoria: 'Salario' },
       { tipo: 'egreso', valor: 500, categoria: 'Alimentación' },

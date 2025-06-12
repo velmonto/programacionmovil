@@ -21,7 +21,6 @@ const crearCategoria = (req, res) => {
     return res.status(400).json({ mensaje: 'Nombre y usuario_id son obligatorios' });
   }
 
-  // Verifica si ya existe esa categoría para el mismo usuario
   db.query(
     'SELECT * FROM categorias WHERE nombre = ? AND usuario_id = ?',
     [nombre, usuario_id],

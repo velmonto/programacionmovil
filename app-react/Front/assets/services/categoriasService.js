@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BASE_URL = 'http://localhost:3300/api/categorias'; 
 
-// ✅ Obtener categorías del usuario
 export const getCategorias = async (usuarioId) => {
   const token = await AsyncStorage.getItem('token');
 
@@ -17,7 +16,6 @@ export const getCategorias = async (usuarioId) => {
   return data;
 };
 
-// ✅ Crear una categoría (enviando nombre y usuario_id en el body)
 export const crearCategoria = async (nombre, usuarioId) => {
   const token = await AsyncStorage.getItem('token');
 
@@ -35,7 +33,6 @@ export const crearCategoria = async (nombre, usuarioId) => {
   return data;
 };
 
-// ✅ Eliminar categoría por ID
 export const eliminarCategoria = async (id) => {
   const token = await AsyncStorage.getItem('token');
 

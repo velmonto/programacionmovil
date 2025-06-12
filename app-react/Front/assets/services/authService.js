@@ -16,7 +16,6 @@ export const login = async (correo, contraseña) => {
     throw new Error(data.mensaje || 'Error de autenticación');
   }
 
-  // Guarda el token en almacenamiento seguro
   await AsyncStorage.setItem('token', data.token);
 
   return data;
